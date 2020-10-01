@@ -1,0 +1,1 @@
+export TF_LOG=DEBUG

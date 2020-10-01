@@ -1,0 +1,20 @@
+# Terraform
+.terraform
+*.tfstate*
+*.log
+
+# Binary
+terraform-provider-spinnaker
+
+# For debugging
+*.tf
+pipelines
+
+# Spin config
+config
+
+# Enviroment variables
+.envrc
+
+# IDE
+.idea/
