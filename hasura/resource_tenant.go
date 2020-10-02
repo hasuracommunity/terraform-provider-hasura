@@ -19,23 +19,23 @@ func resourceTenant() *schema.Resource {
 	return &schema.Resource{
 		Description: "Resource for managing Tenant",
 		Schema: map[string]*schema.Schema{
-			"cloud": &schema.Schema{
+			"cloud": {
 				Type:        schema.TypeString,
 				Description: "Cloud Provider",
 				Required:    true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Description: "Name of the backend",
 				Computed:    true,
 				Optional:    true,
 			},
-			"region": &schema.Schema{
+			"region": {
 				Type:        schema.TypeString,
 				Description: "Region of the backend",
 				Required:    true,
 			},
-			"database_url": &schema.Schema{
+			"database_url": {
 				Type:        schema.TypeString,
 				Description: "URL of the backend",
 				Sensitive:   true,

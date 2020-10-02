@@ -18,12 +18,12 @@ const (
 func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"api_endpoint": &schema.Schema{
+			"api_endpoint": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("HASURA_API_ENDPOINT", defaultAPIEndpoint),
 			},
-			"access_token": &schema.Schema{
+			"access_token": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Access token for Hasura API",
