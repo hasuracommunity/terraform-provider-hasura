@@ -6,7 +6,7 @@ import (
 
 var GetTenantDetails struct {
 	TenantByPK struct {
-		//ID     graphql.ID
+		ID     graphql.ID
 		Cloud  graphql.String
 		Region graphql.String
 	} `graphql:"tenant_by_pk(id: $id)"`

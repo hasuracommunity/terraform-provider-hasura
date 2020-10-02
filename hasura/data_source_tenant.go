@@ -64,9 +64,9 @@ func dataSourceRead(ctx context.Context, d *schema.ResourceData, meta interface{
 		d.Set("cloud", v)
 	}
 
-	//if v, ok := q.TenantByPK.ID.(string); ok {
-	//	d.Set("id", v)
-	//}
+	if v, ok := q.TenantByPK.ID.(string); ok {
+		d.Set("id", v)
+	}
 
 	return diags
 }
