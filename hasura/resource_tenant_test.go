@@ -21,7 +21,7 @@ func TestAccResourceSourceHasuraTenant_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckHasuraTenantCheckDestroy(resourceName),
+		CheckDestroy: testAccCheckHasuraTenantDestroy(resourceName),
 		Steps: []resource.TestStep{
 			{
 				Config: testAccHasuraTenant_basic(rDBURL),
@@ -46,10 +46,10 @@ func testAccCheckHasuraTenantExists(n string) resource.TestCheckFunc {
 		if rs.Primary.ID == "" {
 			return fmt.Errorf("no tentant ID is set")
 		}
-		client := testAccProvider.Meta().(graphql.Client)
+		client := testAccProvider.Meta().(*graphql.Client)
 		err := resource.Retry(1*time.Minute, func() *resource.RetryError {
 			req := query.GetTenantDetails
-			req.Var("id", n)
+			req.Var("id", rs.Primary.ID)
 
 			var resp query.GetTenantResponse
 
@@ -68,46 +68,49 @@ func testAccCheckHasuraTenantExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func testAccCheckHasuraTenantCheckDestroy(n string) resource.TestCheckFunc {
+func testAccCheckHasuraTenantDestroy(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
-		rs, ok := s.RootModule().Resources[n]
-		if !ok {
-			return fmt.Errorf("hasura tenant not found, tenant: %s", n)
+		for _, rs := range s.RootModule().Resources {
+			if rs.Type != "hasura_test" {
+				continue
+			}
+
+			id := rs.Primary.ID
+			if id == "" {
+				return fmt.Errorf("no ID is set")
+			}
+
+			req := query.GetTenantDetails
+			req.Var("id", id)
+
+			client := testAccProvider.Meta().(*graphql.Client)
+			var resp query.GetTenantResponse
+
+			retry := 5
+			for {
+				if err := client.Run(context.Background(), req, &resp); err != nil {
+					return fmt.Errorf("could not get tenant, error:%v", err)
+				}
+
+				if resp.TenantByPK.ID == "" {
+					return nil
+				}
+
+				if resp.TenantByPK.ID != "" {
+					retry--
+					log.Printf("[INFO] Retring CheckDestroy in 1 seconds, retry count: %v", 5-retry)
+					time.Sleep(1 * time.Second)
+				}
+
+				if retry <= 0 {
+					break
+				}
+			}
+
+			return fmt.Errorf("hasura tenant still exists, ID: %s", resp.TenantByPK.ID)
 		}
 
-		id := rs.Primary.ID
-		if id == "" {
-			return fmt.Errorf("no ID is set")
-		}
-
-		req := query.GetTenantDetails
-		req.Var("id", id)
-
-		client := testAccProvider.Meta().(graphql.Client)
-		var resp query.GetTenantResponse
-
-		retry := 5
-		for {
-			if err := client.Run(context.Background(), req, &resp); err != nil {
-				return fmt.Errorf("could not get tenant, error:%v", err)
-			}
-
-			if resp.TenantByPK.ID == "" {
-				return nil
-			}
-
-			if resp.TenantByPK.ID != "" {
-				retry--
-				log.Printf("[INFO] Retring CheckDestroy in 1 seconds, retry count: %v", 5-retry)
-				time.Sleep(1 * time.Second)
-			}
-
-			if retry <= 0 {
-				break
-			}
-		}
-
-		return fmt.Errorf("hasura tenant still exists, ID: %s", resp.TenantByPK.ID)
+		return nil
 	}
 }
 
