@@ -72,7 +72,7 @@ func testAccCheckHasuraTenantCheckDestroy(n string) resource.TestCheckFunc {
 	return func(s *terraform.State) error {
 		rs, ok := s.RootModule().Resources[n]
 		if !ok {
-			return fmt.Errorf("hasura Tenant not found, tenant: %s", n)
+			return fmt.Errorf("hasura tenant not found, tenant: %s", n)
 		}
 
 		id := rs.Primary.ID

@@ -2,8 +2,11 @@ package hasura
 
 import (
 	"context"
+	"log"
 
-	"github.com/hasura/go-graphql-client"
+	"github.com/hasuracommunity/terraform-provider-hasura/hasura/graphql/query"
+
+	"github.com/machinebox/graphql"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -43,29 +46,23 @@ func dataSourceTenant() *schema.Resource {
 func dataSourceRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*graphql.Client)
 	var diags diag.Diagnostics
-	//id := d.Id()
-	//q := query.GetTenantDetails
-	//
-	//vars := map[string]interface{}{
-	//	"id": graphql.ID(id),
-	//}
-	//
-	//if err := client.Query(ctx, &q, vars); err != nil {
-	//	return diag.FromErr(err)
-	//}
-	//
-	//if v := q.TenantByPK.Region; v != "" {
-	//	d.Set("region", v)
-	//}
-	//
-	//if v := q.TenantByPK.Cloud; v != "" {
-	//	d.Set("cloud", v)
-	//}
-	//
-	//if v, ok := q.TenantByPK.ID.(string); ok {
-	//	d.Set("id", v)
-	//}
-	_ = client
+	id := d.Id()
+	req := query.GetTenantDetails
+	req.Var("id", id)
+
+	var resp query.GetTenantResponse
+	if err := client.Run(ctx, req, &resp); err != nil {
+		return diag.FromErr(err)
+	}
+	log.Printf("Get Tenant with id:%s,cloud:%s,region:%s", resp.TenantByPK.ID, resp.TenantByPK.Cloud, resp.TenantByPK.Region)
+
+	if v := resp.TenantByPK.Region; v != "" {
+		d.Set("region", v)
+	}
+
+	if v := resp.TenantByPK.Cloud; v != "" {
+		d.Set("cloud", v)
+	}
 
 	return diags
 }

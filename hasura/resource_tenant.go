@@ -78,6 +78,7 @@ func resourceTenantRead(ctx context.Context, d *schema.ResourceData, meta interf
 	if err := client.Run(ctx, req, &resp); err != nil {
 		return diag.FromErr(err)
 	}
+	log.Printf("Get Tenant with id:%s,cloud:%s,region:%s", resp.TenantByPK.ID, resp.TenantByPK.Cloud, resp.TenantByPK.Region)
 
 	if v := resp.TenantByPK.Region; v != "" {
 		d.Set("region", v)
@@ -85,10 +86,6 @@ func resourceTenantRead(ctx context.Context, d *schema.ResourceData, meta interf
 
 	if v := resp.TenantByPK.Cloud; v != "" {
 		d.Set("cloud", v)
-	}
-
-	if v := resp.TenantByPK.ID; v != "" {
-		d.SetId(v)
 	}
 
 	return diags
@@ -113,5 +110,7 @@ func resourceTenantDelete(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.FromErr(err)
 	}
 
+	log.Printf("Delete Tenant with id:%s", id)
+	d.SetId("")
 	return diags
 }
