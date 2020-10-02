@@ -21,8 +21,7 @@ func Provider() *schema.Provider {
 			"api_endpoint": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     defaultAPIEndpoint,
-				DefaultFunc: schema.EnvDefaultFunc("HASURA_API_ENDPOINT", nil),
+				DefaultFunc: schema.EnvDefaultFunc("HASURA_API_ENDPOINT", defaultAPIEndpoint),
 			},
 			"access_token": &schema.Schema{
 				Type:        schema.TypeString,
