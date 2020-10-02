@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	graphql "github.com/hasura/go-graphql-client"
+	graphql "github.com/machinebox/graphql"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -71,6 +71,7 @@ func providerConfigureFunc(ctx context.Context, d *schema.ResourceData) (interfa
 		Transport: newAccessTokenTransport(accessToken),
 	}
 
-	client := graphql.NewClient(endpoint, httpClient)
+	opts := graphql.WithHTTPClient(httpClient)
+	client := graphql.NewClient(endpoint, opts)
 	return client, diags
 }

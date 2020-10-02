@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hasuracommunity/terraform-provider-hasura/hasura/graphql/query"
-
 	"github.com/hasuracommunity/terraform-provider-hasura/hasura/graphql/mutation"
 
-	"github.com/hasura/go-graphql-client"
+	"github.com/hasuracommunity/terraform-provider-hasura/hasura/graphql/query"
+
+	"github.com/machinebox/graphql"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -51,21 +51,19 @@ func resourceTenant() *schema.Resource {
 
 func resourceTenantCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*graphql.Client)
-
-	m := mutation.CreateProject
-	vars := map[string]interface{}{
-		"name":        graphql.String(d.Get("name").(string)),
-		"cloud":       graphql.String(d.Get("cloud").(string)),
-		"region":      graphql.String(d.Get("region").(string)),
-		"databaseUrl": graphql.String(d.Get("database_url").(string)),
-	}
-
-	if err := client.Mutate(ctx, &m, vars); err != nil {
+	req := mutation.CreateTenant
+	req.Var("name", d.Get("name").(string))
+	req.Var("region", d.Get("region").(string))
+	req.Var("cloud", d.Get("cloud").(string))
+	req.Var("databaseUrl", d.Get("database_url").(string))
+	//var resp mutation.CreateTenantResponse
+	var resp mutation.CreateTenantResponse
+	if err := client.Run(ctx, req, &resp); err != nil {
 		return diag.FromErr(err)
 	}
-	log.Printf("Created Tenant with id:%s", m.CreateTenant.ID)
+	log.Printf("Created Tenant with id:%s", resp.CreateTenant.ID)
 
-	d.SetId(m.CreateTenant.ID.(string))
+	d.SetId(resp.CreateTenant.ID)
 	return resourceTenantRead(ctx, d, meta)
 }
 
@@ -73,27 +71,25 @@ func resourceTenantRead(ctx context.Context, d *schema.ResourceData, meta interf
 	client := meta.(*graphql.Client)
 	var diags diag.Diagnostics
 	id := d.Id()
-	q := query.GetTenantDetails
+	req := query.GetTenantDetails
+	req.Var("id", id)
 
-	vars := map[string]interface{}{
-		"id": graphql.ID(id),
-	}
-
-	if err := client.Query(ctx, &q, vars); err != nil {
+	var resp query.GetTenantResponse
+	if err := client.Run(ctx, req, &resp); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if v := q.TenantByPK.Region; v != "" {
+	if v := resp.TenantByPK.Region; v != "" {
 		d.Set("region", v)
 	}
 
-	if v := q.TenantByPK.Cloud; v != "" {
+	if v := resp.TenantByPK.Cloud; v != "" {
 		d.Set("cloud", v)
 	}
 
-	//if v, ok := q.TenantByPK.ID.(string); ok {
-	//	d.Set("id", v)
-	//}
+	if v := resp.TenantByPK.ID; v != "" {
+		d.SetId(v)
+	}
 
 	return diags
 }
@@ -109,16 +105,6 @@ func resourceTenantUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 func resourceTenantDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*graphql.Client)
 	var diags diag.Diagnostics
-	id := d.Id()
-
-	q := mutation.DeleteTenant
-	vars := map[string]interface{}{
-		"tenantId": graphql.ID(id),
-	}
-
-	if err := client.Mutate(ctx, &q, vars); err != nil {
-		d.SetId("")
-	}
-
+	_ = client
 	return diags
 }

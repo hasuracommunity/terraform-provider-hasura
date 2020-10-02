@@ -1,17 +1,19 @@
 package mutation
 
-import (
-	"github.com/hasura/go-graphql-client"
-)
+import "github.com/machinebox/graphql"
 
-var CreateProject struct {
+var CreateTenant = graphql.NewRequest(`
+   mutation ($databaseUrl: String!, $region: String!, $cloud: String!, $name: String) {
+       createTenant (name:$name, region:$region, databaseUrl:$databaseUrl, cloud:$cloud) {
+           id
+           name
+       }
+   }
+`)
+
+type CreateTenantResponse struct {
 	CreateTenant struct {
-		ID graphql.ID
-	} `graphql:"createTenant(cloud: $cloud, region: $region, databaseUrl: $databaseUrl, name: $name)"`
-}
-
-var DeleteTenant struct {
-	DeleteTenant struct {
-		Status graphql.String
-	} `graphql:"deleteTenant(tenantId: $tenantId)"`
+		ID   string
+		Name string
+	}
 }
