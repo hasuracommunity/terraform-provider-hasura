@@ -1,0 +1,54 @@
+name: Test
+on: [push]
+env:
+  GO111MODULE: on
+
+jobs:
+  unittest:
+    name: "Unit Test"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.14
+      - uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Run go fmt
+        if: runner.os != 'Windows'
+        run: diff -u <(echo -n) <(gofmt -d -s .)
+      - name: Install modules
+        run: go get -d -v
+      - name: Run go vet
+        run: go vet ./...
+      - name: Build provider
+        run: go build -v
+      - name: Run Test
+        run: go test -v ./...
+  accTest:
+    name: "Acceptance Test"
+    needs: unittest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.14
+      - uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Run acceptance test
+        run: make testacc
+        env:
+          HASURA_ACCESS_TOKEN: ${{ secrets.HASURA_ACCESS_TOKEN }}

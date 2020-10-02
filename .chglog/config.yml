@@ -1,0 +1,12 @@
+style: github
+template: CHANGELOG.tpl.md
+info:
+  title: Changelog
+  repository_url: https://github.com/spinnaker/kustomization-base
+options:
+  header:
+    pattern: "^(\\w*)(?:\\(([\\w\\$\\.\\-\\*\\s]*)\\))?\\:\\s(.*)$"
+    pattern_maps:
+      - Type
+      - Scope
+      - Subject
