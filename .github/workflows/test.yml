@@ -50,3 +50,5 @@ jobs:
             ${{ runner.os }}-go-
       - name: Install modules
         run: make testacc
+        env:
+          HASURA_ACCESS_TOKEN: ${{ secrets.HASURA_ACCESS_TOKEN }}
