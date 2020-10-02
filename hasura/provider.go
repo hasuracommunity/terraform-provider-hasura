@@ -3,8 +3,7 @@ package hasura
 import (
 	"context"
 	"fmt"
-
-	"golang.org/x/oauth2"
+	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	graphql "github.com/hasura/go-graphql-client"
@@ -35,9 +34,26 @@ func Provider() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
 			"hasura_tenant": resourceTenant(),
 		},
-		DataSourcesMap:       map[string]*schema.Resource{},
+		DataSourcesMap: map[string]*schema.Resource{
+			"hasura_tenant": dataSourceTenant(),
+		},
 		ConfigureContextFunc: providerConfigureFunc,
 	}
+}
+
+type AddAccessTokenTransport struct {
+	T           http.RoundTripper
+	AccessToken string
+}
+
+func (adt *AddAccessTokenTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Add("Authorization", fmt.Sprintf("pat %s", adt.AccessToken))
+	return adt.T.RoundTrip(req)
+}
+
+func newAccessTokenTransport(accessToken string) *AddAccessTokenTransport {
+	t := http.DefaultTransport
+	return &AddAccessTokenTransport{t, accessToken}
 }
 
 func providerConfigureFunc(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
@@ -51,10 +67,10 @@ func providerConfigureFunc(ctx context.Context, d *schema.ResourceData) (interfa
 		return nil, diag.FromErr(fmt.Errorf("empty access_token for Hasura"))
 	}
 
-	src := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: accessToken},
-	)
-	httpClient := oauth2.NewClient(context.Background(), src)
+	httpClient := &http.Client{
+		Transport: newAccessTokenTransport(accessToken),
+	}
+
 	client := graphql.NewClient(endpoint, httpClient)
 	return client, diags
 }

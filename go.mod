@@ -3,6 +3,8 @@ module github.com/hasuracommunity/terraform-provider-hasura
 go 1.14
 
 require (
+	github.com/gofrs/uuid v3.3.0+incompatible
+	github.com/google/uuid v1.1.2
 	github.com/hashicorp/terraform-plugin-sdk v1.16.0 // indirect
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.0.3
 	github.com/hasura/go-graphql-client v0.1.0

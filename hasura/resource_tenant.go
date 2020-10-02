@@ -2,6 +2,8 @@ package hasura
 
 import (
 	"context"
+	"fmt"
+	"log"
 
 	"github.com/hasuracommunity/terraform-provider-hasura/hasura/graphql/query"
 
@@ -61,8 +63,9 @@ func resourceTenantCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	if err := client.Mutate(ctx, &m, vars); err != nil {
 		return diag.FromErr(err)
 	}
+	log.Printf("Created Tenant with id:%s", m.CreateTenant.ID)
 
-	d.SetId(string(m.CreateTenant.ID))
+	d.SetId(m.CreateTenant.ID.(string))
 	return resourceTenantRead(ctx, d, meta)
 }
 
@@ -73,7 +76,7 @@ func resourceTenantRead(ctx context.Context, d *schema.ResourceData, meta interf
 	q := query.GetTenantDetails
 
 	vars := map[string]interface{}{
-		"id": id,
+		"id": graphql.ID(id),
 	}
 
 	if err := client.Query(ctx, &q, vars); err != nil {
@@ -88,23 +91,34 @@ func resourceTenantRead(ctx context.Context, d *schema.ResourceData, meta interf
 		d.Set("cloud", v)
 	}
 
-	if v := q.TenantByPK.ID; v != "" {
-		d.Set("id", v)
-	}
+	//if v, ok := q.TenantByPK.ID.(string); ok {
+	//	d.Set("id", v)
+	//}
 
 	return diags
 }
 
 func resourceTenantUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return resourceTenantRead(ctx, d, meta)
+	if diags := resourceTenantDelete(ctx, d, meta); diags.HasError() {
+		return diag.FromErr(fmt.Errorf("failed to delete tenant"))
+	}
+
+	return resourceTenantCreate(ctx, d, meta)
 }
 
 func resourceTenantDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	client := meta.(*graphql.Client)
 	var diags diag.Diagnostics
-	//id := d.Id()
-	//
-	//if err := delete tenant; err != nil {
-	//	d.SetId("")
-	//}
+	id := d.Id()
+
+	q := mutation.DeleteTenant
+	vars := map[string]interface{}{
+		"tenantId": graphql.ID(id),
+	}
+
+	if err := client.Mutate(ctx, &q, vars); err != nil {
+		d.SetId("")
+	}
+
 	return diags
 }
