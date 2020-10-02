@@ -17,3 +17,17 @@ type CreateTenantResponse struct {
 		Name string
 	}
 }
+
+var DeleteTenant = graphql.NewRequest(`
+   mutation ($tenantId: uuid!) {
+       deleteTenant (tenantId:$tenantId) {
+           status
+       }
+   }
+`)
+
+type DeleteTenantResponse struct {
+	DeleteTenant struct {
+		Status string
+	}
+}

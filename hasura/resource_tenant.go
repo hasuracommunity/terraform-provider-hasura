@@ -56,7 +56,7 @@ func resourceTenantCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	req.Var("region", d.Get("region").(string))
 	req.Var("cloud", d.Get("cloud").(string))
 	req.Var("databaseUrl", d.Get("database_url").(string))
-	//var resp mutation.CreateTenantResponse
+
 	var resp mutation.CreateTenantResponse
 	if err := client.Run(ctx, req, &resp); err != nil {
 		return diag.FromErr(err)
@@ -105,6 +105,13 @@ func resourceTenantUpdate(ctx context.Context, d *schema.ResourceData, meta inte
 func resourceTenantDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	client := meta.(*graphql.Client)
 	var diags diag.Diagnostics
-	_ = client
+	id := d.Id()
+	var resp mutation.DeleteTenantResponse
+	req := mutation.DeleteTenant
+	req.Var("tenantId", id)
+	if err := client.Run(ctx, req, &resp); err != nil {
+		return diag.FromErr(err)
+	}
+
 	return diags
 }
