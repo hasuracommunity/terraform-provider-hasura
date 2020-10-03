@@ -2,7 +2,6 @@ package hasura
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/hasuracommunity/terraform-provider-hasura/hasura/graphql/mutation"
@@ -93,7 +92,7 @@ func resourceTenantRead(ctx context.Context, d *schema.ResourceData, meta interf
 
 func resourceTenantUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	if diags := resourceTenantDelete(ctx, d, meta); diags.HasError() {
-		return diag.FromErr(fmt.Errorf("failed to delete tenant"))
+		return diags
 	}
 
 	return resourceTenantCreate(ctx, d, meta)
