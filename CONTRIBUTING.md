@@ -26,13 +26,13 @@ Upon first build, you may see output while the `go` tool fetches dependencies.
 To verify dependencies match checksums under go.sum, run `go mod verify`.
 To clean up any old, unused go.mod or go.sum lines, run `go mod tidy`.
 
-## Running Miro Provider
+## Running Hasura Provider
 
 Create a `provider.tf`.
 
 ```hcl
-provider "miro" {
-  access_key = "<MASKED>"
+provider "hasura" {
+  access_token = "<MASKED>"
 }
 ```
 
