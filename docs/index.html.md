@@ -8,7 +8,7 @@ Use the navigation to the left to read about the available resources.
 ## Example Usage
 
 ```hcl
-# Configure the Datadog provider
+# Configure the Hasura provider
 provider "hasura" {
   access_token = "${var.access_token}"
 }
