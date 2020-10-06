@@ -2,7 +2,7 @@ style: github
 template: CHANGELOG.tpl.md
 info:
   title: Changelog
-  repository_url: https://github.com/spinnaker/kustomization-base
+  repository_url: https://github.com/hasuracommunity/terraform-provider-hasura
 options:
   header:
     pattern: "^(\\w*)(?:\\(([\\w\\$\\.\\-\\*\\s]*)\\))?\\:\\s(.*)$"
