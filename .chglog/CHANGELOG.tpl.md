@@ -1,9 +1,30 @@
-{{ range .Versions }}
-## Changelog
+{{range .Versions}}
+<a name="{{.Tag.Name}}"></a>
 
-{{ range .CommitGroups -}}
-{{ range .Commits -}}
-- [`{{ .Hash.Short }}`](https://github.com/spinnaker/kustomization-base/commit/{{ .Hash.Long }}): {{ .Header }}{{ if .Merge }}({{ .Merge.Ref }}){{ end }}
-{{ end -}}
-{{ end -}}
-{{ end -}}
+## {{if .Tag.Previous}}[{{.Tag.Name}}]({{$.Info.RepositoryURL}}/compare/{{.Tag.Previous.Name}}...{{.Tag.Name}}){{else}}{{.Tag.Name}}{{end}} ({{datetime "2006-01-02" .Tag.Date}})
+{{range .CommitGroups}}
+
+### {{.Title}}
+{{range .Commits}}
+
+- {{.Subject}}{{end}}
+  {{end}}{{if .RevertCommits}}
+
+### Reverts
+{{range .RevertCommits}}
+
+- {{.Revert.Header}}{{end}}
+  {{end}}{{if .MergeCommits}}
+
+### Pull Requests
+{{range .MergeCommits}}
+
+- {{.Header}}{{end}}
+  {{end}}{{range .NoteGroups}}
+
+### {{.Title}}
+{{range .Notes}}
+{{.Body}}
+{{end}}
+{{end}}
+{{end}}
