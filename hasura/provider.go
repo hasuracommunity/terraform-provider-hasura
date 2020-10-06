@@ -33,9 +33,7 @@ func Provider() *schema.Provider {
 		ResourcesMap: map[string]*schema.Resource{
 			"hasura_tenant": resourceTenant(),
 		},
-		DataSourcesMap: map[string]*schema.Resource{
-			"hasura_tenant": dataSourceTenant(),
-		},
+		DataSourcesMap:       map[string]*schema.Resource{},
 		ConfigureContextFunc: providerConfigureFunc,
 	}
 }
