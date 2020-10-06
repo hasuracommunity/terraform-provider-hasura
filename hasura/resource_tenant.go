@@ -12,6 +12,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
 func resourceTenant() *schema.Resource {
@@ -19,9 +20,10 @@ func resourceTenant() *schema.Resource {
 		Description: "Resource for managing Tenant",
 		Schema: map[string]*schema.Schema{
 			"cloud": {
-				Type:        schema.TypeString,
-				Description: "Cloud Provider",
-				Required:    true,
+				Type:         schema.TypeString,
+				Description:  "Cloud Provider",
+				Required:     true,
+				ValidateFunc: validation.StringInSlice([]string{"aws", "gcp", "azure"}, false),
 			},
 			"name": {
 				Type:        schema.TypeString,
