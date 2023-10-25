@@ -46,7 +46,7 @@ jobs:
             ${{ runner.os }}-go-
       - name: Import GPG key
         id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v3
+        uses: crazy-max/ghaction-import-gpg@v6
         with:
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphase: ${{ secrets.PASSPHRASE }}
