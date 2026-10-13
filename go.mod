@@ -3,7 +3,7 @@ module github.com/hasuracommunity/terraform-provider-hasura
 go 1.14
 
 require (
-	github.com/aws/aws-sdk-go v1.30.12 // indirect
+	github.com/aws/aws-sdk-go v1.34.0 // indirect
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.4.2
 	github.com/hasura/go-graphql-client v0.9.2
 	github.com/klauspost/compress v1.11.1 // indirect
